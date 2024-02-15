@@ -25,22 +25,29 @@ function LoginPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!username || !password) {
-      setError('Both fields are required');
+        setError('Both fields are required');
     } else {
-      axios.post('http://localhost:3000/login', { username, password })
-        .then(response => {
-          if (response.status === 200) {
-            navigate('/welcome');
-          } else {
-            setError('Invalid username');
-          }
-        })
-        .catch(error => {
-          console.error('Error during login request:', error);
-          setError('Error during login. Please try again later.');
-        });
+        axios.post('http://localhost:3000/login', { username, password })
+            .then(response => {
+                if (response.status === 200) {
+                    navigate('/welcome');
+                } else if (response.status === 401) {
+                    setError('Invalid username or password');
+                }
+            })
+            .catch(error => {
+                if (error.response && error.response.status === 401) {
+                    setError('Invalid username or password');
+                } else if (error.response && error.response.status === 500) {
+                    setError('Error during login. Please try again later.');
+                } else {
+                    setError('Server error. Please try again later.');
+                }
+                console.error('Error during login request:', error);
+            });
     }
-  };
+};
+
   
   return (
     <div className="login-container">
